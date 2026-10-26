@@ -1,4 +1,4 @@
-// 할 일 목록: 추가 / 날짜 / 별표 / 체크 / 삭제 / 남은 개수 / 새로고침해도 남기기
+// 할 일 목록: 추가 / 날짜 / 별표 / 체크 / 삭제 / 필터 / 남은 개수 / 새로고침해도 남기기
 const STORAGE_KEY = "todo-nini-items";
 
 const input = document.getElementById("item");
@@ -6,6 +6,7 @@ const addButton = document.getElementById("add");
 const list = document.getElementById("list");
 const count = document.getElementById("count");
 const dateInput = document.getElementById("date");
+const filterButtons = document.querySelectorAll("#filters button");
 
 // 오늘 날짜를 "2026-10-26" 모양으로 돌려준다 (이 기기의 시간 기준)
 function today() {
@@ -57,13 +58,30 @@ function saveItems() {
 
 let items = loadItems();
 
+// 어떤 할 일을 보여 줄지: all(전체) / remaining(남은 것) / done(완료) / starred(별표만)
+let filter = "all";
+
+function matchesFilter(item) {
+  if (filter === "remaining") {
+    return !item.done;
+  }
+  if (filter === "done") {
+    return item.done;
+  }
+  if (filter === "starred") {
+    return item.starred;
+  }
+  return true;
+}
+
 // items 배열을 화면에 그린다 (별표 한 할 일이 맨 위, 나머지는 더한 순서 그대로)
 function render() {
   list.textContent = "";
 
-  const starredFirst = items.filter(function (item) {
+  const shown = items.filter(matchesFilter);
+  const starredFirst = shown.filter(function (item) {
     return item.starred;
-  }).concat(items.filter(function (item) {
+  }).concat(shown.filter(function (item) {
     return !item.starred;
   }));
 
@@ -121,7 +139,20 @@ function render() {
   count.textContent = items.filter(function (item) {
     return !item.done;
   }).length;
+
+  filterButtons.forEach(function (button) {
+    const selected = button.dataset.filter === filter;
+    button.classList.toggle("on", selected);
+    button.setAttribute("aria-pressed", selected ? "true" : "false");
+  });
 }
+
+filterButtons.forEach(function (button) {
+  button.addEventListener("click", function () {
+    filter = button.dataset.filter;
+    render();
+  });
+});
 
 // 입력칸의 글을 할 일로 더한다
 function addItem() {
