@@ -135,6 +135,11 @@ button {
     box-shadow: 0 0 12px rgba(255, 107, 122, 0.3);
   }
 
+  #clear-done:enabled:hover {
+    background: rgba(255, 107, 122, 0.15);
+    box-shadow: 0 0 12px rgba(255, 107, 122, 0.3);
+  }
+
   li .star:hover {
     background: rgba(255, 216, 74, 0.2);
     box-shadow: 0 0 12px rgba(255, 216, 74, 0.35);
@@ -212,6 +217,21 @@ li.done .date {
   text-decoration: line-through;
   color: var(--muted);
   opacity: 0.55;
+}
+
+/* 완료 항목 한 번에 지우기 */
+#clear-done {
+  grid-column: 1 / -1;
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+#clear-done:disabled {
+  border-color: var(--line);
+  color: var(--muted);
+  opacity: 0.5;
+  cursor: default;
+  box-shadow: none;
 }
 
 /* 마감이 지난 할 일(체크 안 했고 날짜가 오늘보다 앞): 빨간색 */

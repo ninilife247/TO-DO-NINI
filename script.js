@@ -1,4 +1,4 @@
-// 할 일 목록: 추가 / 날짜 / 별표 / 체크 / 삭제 / 필터 / 남은 개수 / 새로고침해도 남기기
+// 할 일 목록: 추가 / 날짜 / 별표 / 체크 / 삭제 / 완료 항목 지우기 / 필터 / 남은 개수 / 새로고침해도 남기기
 const STORAGE_KEY = "todo-nini-items";
 
 const input = document.getElementById("item");
@@ -7,6 +7,7 @@ const list = document.getElementById("list");
 const count = document.getElementById("count");
 const dateInput = document.getElementById("date");
 const filterButtons = document.querySelectorAll("#filters button");
+const clearDoneButton = document.getElementById("clear-done");
 
 // 오늘 날짜를 "2026-10-26" 모양으로 돌려준다 (이 기기의 시간 기준)
 function today() {
@@ -143,12 +144,25 @@ function render() {
     return !item.done;
   }).length;
 
+  clearDoneButton.disabled = !items.some(function (item) {
+    return item.done;
+  });
+
   filterButtons.forEach(function (button) {
     const selected = button.dataset.filter === filter;
     button.classList.toggle("on", selected);
     button.setAttribute("aria-pressed", selected ? "true" : "false");
   });
 }
+
+// 체크한 할 일을 모두 지운다 (어떤 필터를 보고 있어도 완료한 것 전부)
+clearDoneButton.addEventListener("click", function () {
+  items = items.filter(function (item) {
+    return !item.done;
+  });
+  saveItems();
+  render();
+});
 
 filterButtons.forEach(function (button) {
   button.addEventListener("click", function () {
