@@ -108,12 +108,31 @@ button {
   font: inherit;
   font-size: 20px;
   cursor: pointer;
+  transition: background-color 0.15s, box-shadow 0.15s;
 }
 
 #add-button {
   background: var(--neon-dim);
   text-shadow: 0 0 8px rgba(25, 230, 208, 0.6);
   box-shadow: 0 0 12px rgba(25, 230, 208, 0.25);
+}
+
+/* 마우스를 올리면 색이 살짝 바뀜 (마우스가 있는 기기에서만) */
+@media (hover: hover) {
+  button:hover {
+    background: var(--neon-dim);
+    box-shadow: 0 0 12px rgba(25, 230, 208, 0.3);
+  }
+
+  #add-button:hover {
+    background: rgba(25, 230, 208, 0.28);
+    box-shadow: 0 0 18px rgba(25, 230, 208, 0.45);
+  }
+
+  li button:hover {
+    background: rgba(255, 107, 122, 0.15);
+    box-shadow: 0 0 12px rgba(255, 107, 122, 0.3);
+  }
 }
 
 /* 할 일 목록 */
