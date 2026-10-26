@@ -1,10 +1,27 @@
-// 할 일 목록: 추가 / 체크 / 삭제 / 남은 개수 / 새로고침해도 남기기
+// 할 일 목록: 추가 / 날짜 / 체크 / 삭제 / 남은 개수 / 새로고침해도 남기기
 const STORAGE_KEY = "todo-nini-items";
 
 const input = document.getElementById("item");
 const addButton = document.getElementById("add");
 const list = document.getElementById("list");
 const count = document.getElementById("count");
+const dateInput = document.getElementById("date");
+
+// 오늘 날짜를 "2026-10-26" 모양으로 돌려준다 (이 기기의 시간 기준)
+function today() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return now.getFullYear() + "-" + month + "-" + day;
+}
+
+// "2026-10-26" -> "10월 26일"
+function showDate(date) {
+  const parts = date.split("-");
+  return Number(parts[1]) + "월 " + Number(parts[2]) + "일";
+}
+
+dateInput.value = today();
 
 // 화면에 처음 적혀 있던 할 일을 읽어 둔다 (저장된 게 없을 때 처음 목록으로 쓴다)
 function readItemsFromScreen() {
@@ -12,6 +29,7 @@ function readItemsFromScreen() {
     return {
       text: li.textContent.replace("삭제", "").trim(),
       done: li.querySelector("input[type='checkbox']").checked,
+      date: today(),
     };
   });
 }
@@ -63,7 +81,16 @@ function render() {
       render();
     });
 
-    li.append(checkbox, " " + item.text + " ", deleteButton);
+    li.append(checkbox, " " + item.text + " ");
+
+    if (item.date) {
+      const dateLabel = document.createElement("span");
+      dateLabel.className = "date";
+      dateLabel.textContent = showDate(item.date);
+      li.append(dateLabel);
+    }
+
+    li.append(deleteButton);
     list.appendChild(li);
   });
 
@@ -77,8 +104,9 @@ addButton.addEventListener("click", function () {
   if (text === "") {
     return; // 빈 칸은 추가하지 않는다
   }
-  items.push({ text: text, done: false });
+  items.push({ text: text, done: false, date: dateInput.value || today() });
   input.value = "";
+  dateInput.value = today();
   saveItems();
   render();
 });
