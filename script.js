@@ -99,7 +99,12 @@ function renderToday() {
     day: "numeric",
     weekday: "long",
   });
-  todayInfo.textContent = weatherText ? dayText + " · " + weatherText : dayText;
+  let text = weatherText ? dayText + " · " + weatherText : dayText;
+  const scheduled = items.filter(isScheduled).length;
+  if (scheduled > 0) {
+    text += " · 예정 " + scheduled + "개 (날짜가 되면 보여요)";
+  }
+  todayInfo.textContent = text;
 }
 
 async function loadWeather(place) {
@@ -138,7 +143,6 @@ function startWeather() {
   );
 }
 
-renderToday();
 startWeather();
 
 // 날짜가 바뀌면(자정이 지나면) 화면을 새로 그린다
@@ -171,6 +175,11 @@ function toItem(row) {
 // ---------- 목록 ----------
 
 let items = [];
+
+// 날짜가 오늘보다 뒤인 할 일은 "예정"이라서, 그 날짜가 될 때까지 목록에서 숨긴다
+function isScheduled(item) {
+  return Boolean(item.date) && item.date > today();
+}
 
 // 어떤 할 일을 보여 줄지: all(전체) / remaining(남은 것) / done(완료) / starred(별표만)
 let filter = "all";
@@ -239,7 +248,9 @@ function startEditing(item, li, textLabel) {
 function render() {
   list.textContent = "";
 
-  const shown = items.filter(matchesFilter);
+  const shown = items.filter(function (item) {
+    return !isScheduled(item);
+  }).filter(matchesFilter);
   const starredFirst = shown.filter(function (item) {
     return item.starred;
   }).concat(shown.filter(function (item) {
@@ -327,8 +338,10 @@ function render() {
   });
 
   count.textContent = items.filter(function (item) {
-    return !item.done;
+    return !item.done && !isScheduled(item);
   }).length;
+
+  renderToday();
 
   clearDoneButton.disabled = !items.some(function (item) {
     return item.done;
