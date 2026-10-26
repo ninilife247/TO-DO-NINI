@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>나의 할 일</h1>
+  <h1><span class="balloon" data-text="나의 할 일">나의 할 일</span></h1>
 
   <div>
     <input type="text" id="todo-input" placeholder="할 일을 적어 주세요">
-    <button type="button" id="add-button">추가</button>
+    <button type="button" id="add-button"><span class="balloon" data-text="추가">추가</span></button>
   </div>
 
   <ul id="todo-list">
@@ -24,6 +24,6 @@
 
   <p id="empty-message">아직 할 일이 없어요</p>
 
-  <p id="remaining-count">남은 할 일 1개</p>
+  <p id="remaining-count"><span class="balloon" data-text="남은 할 일 1개">남은 할 일 1개</span></p>
 </body>
 </html>

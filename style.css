@@ -178,6 +178,26 @@ li button {
   letter-spacing: 0.04em;
 }
 
+/* 풍선 글씨 윤기: 같은 글자를 위에 한 겹 더 얹어 윗부분은 밝게, 아랫부분은 조금 어둡게 */
+.balloon {
+  position: relative;
+  display: inline-block;
+}
+
+.balloon::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  background: linear-gradient(to bottom, #ffffff 0%, #ffffff 45%, #c9f0d5 50%, #8fd9a8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
 /* 아주 좁은 휴대폰에서는 한 줄에 한 칸씩 */
 @media (max-width: 360px) {
   #empty-message,
