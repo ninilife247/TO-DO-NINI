@@ -88,6 +88,9 @@ function render() {
   starredFirst.forEach(function (item) {
     const li = document.createElement("li");
     li.className = item.done ? "done" : "";
+    if (!item.done && item.date && item.date < today()) {
+      li.className = "overdue"; // 끝내지 못했는데 날짜가 지났다
+    }
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";

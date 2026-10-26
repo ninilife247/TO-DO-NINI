@@ -214,6 +214,16 @@ li.done .date {
   opacity: 0.55;
 }
 
+/* 마감이 지난 할 일(체크 안 했고 날짜가 오늘보다 앞): 빨간색 */
+li.overdue {
+  border-color: rgba(255, 107, 122, 0.6);
+}
+
+li.overdue .text,
+li.overdue .date {
+  color: var(--danger);
+}
+
 /* 별표 버튼: 평소엔 회색 테두리, 누르면 노란색 */
 li .star {
   min-width: 48px;
