@@ -1,0 +1,154 @@
+:root {
+  --bg: #f1efe9;
+  --tile: #ffffff;
+  --text: #22201c;
+  --muted: #7a756b;
+  --accent: #3b6df0;
+  --accent-soft: #e6ecfe;
+  --danger: #d64545;
+  --line: #e4e0d6;
+  --radius: 20px;
+  --gap: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0 auto;
+  padding: 16px;
+  max-width: 640px;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+  align-content: start;
+}
+
+/* 모든 칸을 같은 모양의 타일로 */
+h1,
+body > div,
+ul,
+#empty-message,
+#remaining-count {
+  margin: 0;
+  background: var(--tile);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+h1 {
+  grid-column: 1 / -1;
+  font-size: 28px;
+  line-height: 1.2;
+  background: var(--accent);
+  color: #fff;
+}
+
+/* 입력칸 + 추가 버튼 */
+body > div {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+}
+
+input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+button {
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#add-button {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* 할 일 목록 */
+ul {
+  grid-column: 1 / -1;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--bg);
+  border-radius: 14px;
+}
+
+li input[type="checkbox"] {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  accent-color: var(--accent);
+}
+
+li span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+li button {
+  flex: none;
+  min-height: 44px;
+  background: transparent;
+  color: var(--danger);
+}
+
+/* 아래 두 작은 타일은 나란히 */
+#empty-message,
+#remaining-count {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+}
+
+#empty-message {
+  color: var(--muted);
+}
+
+#remaining-count {
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* 아주 좁은 휴대폰에서는 한 줄에 한 칸씩 */
+@media (max-width: 360px) {
+  #empty-message,
+  #remaining-count {
+    grid-column: 1 / -1;
+  }
+}
