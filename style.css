@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Jua";
+  src: url("fonts/Jua-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg: #edf5ee;
   --tile: #ffffff;
@@ -9,7 +17,7 @@
   --line: #cfe2d4;
   --radius: 20px;
   --gap: 12px;
-  --balloon-font: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Hiragino Maru Gothic ProN", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --font: "Jua", ui-rounded, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
 }
 
 * {
@@ -23,7 +31,7 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  font-family: var(--font);
   font-size: 16px;
   line-height: 1.5;
   display: grid;
@@ -52,8 +60,8 @@ h1 {
   background: var(--accent);
   color: #fff;
   /* 풍선 글씨: 통통한 글자 + 둥근 굵은 테두리 + 아래쪽 그림자 */
-  font-family: var(--balloon-font);
-  font-weight: 900;
+  font-family: var(--font);
+  font-weight: 400;
   letter-spacing: 0.06em;
   -webkit-text-stroke: 8px #0f4d27;
   paint-order: stroke fill;
@@ -93,15 +101,15 @@ button {
   border: 0;
   border-radius: 14px;
   font: inherit;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
 }
 
 #add-button {
   background: var(--accent);
   color: #fff;
-  font-family: var(--balloon-font);
-  font-weight: 900;
+  font-family: var(--font);
+  font-weight: 400;
   -webkit-text-stroke: 3px #0f4d27;
   paint-order: stroke fill;
   stroke-linejoin: round;
@@ -160,9 +168,8 @@ li button {
 
 #remaining-count {
   background: var(--accent-soft);
-  font-weight: 600;
-  font-family: var(--balloon-font);
-  font-weight: 900;
+  font-weight: 400;
+  font-family: var(--font);
   color: #fff;
   -webkit-text-stroke: 3px #238a4a;
   paint-order: stroke fill;
