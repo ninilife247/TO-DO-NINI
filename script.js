@@ -1,12 +1,8 @@
 // 할 일 목록: 추가 / 고치기 / 날짜 / 별표 / 체크 / 삭제 / 완료 항목 지우기 / 필터 / 남은 개수
-// 할 일(글, 완료 여부)은 Supabase의 todos 표에 저장한다. 새로고침해도 표에서 다시 읽어 온다.
+// 할 일(글, 완료 여부, 날짜, 별표)은 Supabase의 todos 표에 저장한다. 새로고침해도 표에서 다시 읽어 온다.
 // 아래 두 값은 공개해도 되는 주소와 공개 키다 (비밀 키는 절대 여기에 넣지 않는다).
 const SUPABASE_URL = "https://pnmivezqsljfptgxqgqi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_xx3jUDsEDjocSgjYyPuuIg_J1P59QhD";
-
-// todos 표에는 id, text, done, created_at 칸만 있어서
-// 날짜와 별표는 이 브라우저에만 기억해 둔다 (할 일의 id별로)
-const EXTRAS_KEY = "todo-nini-extras";
 
 const input = document.getElementById("item");
 const addButton = document.getElementById("add");
@@ -68,37 +64,15 @@ function showDate(date) {
 
 dateInput.value = today();
 
-// ---------- 날짜·별표 (이 브라우저에만 저장) ----------
-
-function loadExtras() {
-  try {
-    return JSON.parse(localStorage.getItem(EXTRAS_KEY)) || {};
-  } catch (e) {
-    return {};
-  }
-}
-
-function saveExtras() {
-  const extras = {};
-  items.forEach(function (item) {
-    extras[item.id] = { date: item.date, starred: item.starred };
-  });
-  try {
-    localStorage.setItem(EXTRAS_KEY, JSON.stringify(extras));
-  } catch (e) {
-    // 저장이 안 되어도 화면은 계속 동작한다
-  }
-}
-
-// 표에서 읽은 한 줄에 날짜와 별표를 붙여 화면용 할 일로 만든다
-function toItem(row, extras) {
-  const extra = extras[row.id] || {};
+// 표에서 읽은 한 줄을 화면용 할 일로 만든다
+// 날짜(due_date)가 비어 있는 줄은 만든 날(created_at)을 날짜로 쓴다
+function toItem(row) {
   return {
     id: row.id,
     text: row.text,
     done: row.done,
-    date: extra.date || (row.created_at ? dateText(new Date(row.created_at)) : today()),
-    starred: extra.starred === true,
+    date: row.due_date || (row.created_at ? dateText(new Date(row.created_at)) : today()),
+    starred: row.starred === true,
   };
 }
 
@@ -206,9 +180,13 @@ function render() {
     starButton.textContent = "★";
     starButton.setAttribute("aria-label", "별표");
     starButton.setAttribute("aria-pressed", item.starred ? "true" : "false");
-    starButton.addEventListener("click", function () {
-      item.starred = !item.starred;
-      saveExtras();
+    starButton.addEventListener("click", async function () {
+      try {
+        await request(idFilter(item), { method: "PATCH", body: { starred: !item.starred } });
+        item.starred = !item.starred;
+      } catch (error) {
+        showError(error);
+      }
       render();
     });
 
@@ -219,7 +197,6 @@ function render() {
       try {
         await request(idFilter(item), { method: "DELETE" });
         items.splice(items.indexOf(item), 1);
-        saveExtras();
       } catch (error) {
         showError(error);
       }
@@ -269,7 +246,6 @@ clearDoneButton.addEventListener("click", async function () {
     items = items.filter(function (item) {
       return !item.done;
     });
-    saveExtras();
   } catch (error) {
     showError(error);
   }
@@ -293,11 +269,11 @@ async function addItem() {
   }
   const date = dateInput.value || today();
   try {
-    const rows = await request("todos", { method: "POST", body: { text: text, done: false } });
-    const item = toItem(rows[0], {});
-    item.date = date;
-    items.push(item);
-    saveExtras();
+    const rows = await request("todos", {
+      method: "POST",
+      body: { text: text, done: false, starred: false, due_date: date },
+    });
+    items.push(toItem(rows[0]));
     input.value = "";
     dateInput.value = today();
   } catch (error) {
@@ -319,14 +295,10 @@ input.addEventListener("keydown", function (event) {
 // 처음 열 때: 표에서 할 일을 읽어 와서 보여 준다
 async function loadItems() {
   try {
-    const rows = await request("todos?select=id,text,done,created_at&order=created_at.asc", {
+    const rows = await request("todos?select=id,text,done,created_at,starred,due_date&order=created_at.asc", {
       method: "GET",
     });
-    const extras = loadExtras();
-    items = rows.map(function (row) {
-      return toItem(row, extras);
-    });
-    saveExtras();
+    items = rows.map(toItem);
   } catch (error) {
     showError(error);
   }
