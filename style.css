@@ -136,6 +136,10 @@ button {
     background: rgba(255, 107, 122, 0.15);
   }
 
+  li button.delete:hover {
+    background: rgba(229, 72, 77, 0.1);
+  }
+
   li .star:hover {
     background: rgba(255, 216, 74, 0.2);
   }
@@ -247,6 +251,20 @@ li.overdue {
 li.overdue .text,
 li.overdue .date {
   color: var(--danger);
+}
+
+/* 삭제 버튼: 글씨 대신 그림 */
+li button.delete {
+  min-width: 52px;
+  padding: 0 8px;
+  background: #ffffff;
+}
+
+li button.delete img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
 /* 별표 버튼: 평소엔 회색 테두리, 누르면 노란색 */

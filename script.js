@@ -4,6 +4,9 @@
 const SUPABASE_URL = "https://pnmivezqsljfptgxqgqi.supabase.co";
 const SUPABASE_KEY = "sb_publishable_xx3jUDsEDjocSgjYyPuuIg_J1P59QhD";
 
+// 삭제 버튼에 글씨 대신 넣는 그림 (Supabase 스토리지 files 버킷)
+const DELETE_ICON_URL = "https://pnmivezqsljfptgxqgqi.supabase.co/storage/v1/object/public/files/images.jpg";
+
 const input = document.getElementById("item");
 const addButton = document.getElementById("add");
 const list = document.getElementById("list");
@@ -192,7 +195,17 @@ function render() {
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
-    deleteButton.textContent = "삭제";
+    deleteButton.className = "delete";
+    deleteButton.setAttribute("aria-label", "삭제");
+    deleteButton.title = "삭제";
+
+    const deleteIcon = document.createElement("img");
+    deleteIcon.src = DELETE_ICON_URL;
+    deleteIcon.alt = "";
+    deleteIcon.addEventListener("error", function () {
+      deleteButton.textContent = "삭제"; // 그림이 안 불러와지면 글씨로 대신한다
+    });
+    deleteButton.append(deleteIcon);
     deleteButton.addEventListener("click", async function () {
       try {
         await request(idFilter(item), { method: "DELETE" });
