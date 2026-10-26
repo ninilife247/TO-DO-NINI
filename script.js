@@ -1,4 +1,4 @@
-// 할 일 목록: 추가 / 날짜 / 체크 / 삭제 / 남은 개수 / 새로고침해도 남기기
+// 할 일 목록: 추가 / 날짜 / 별표 / 체크 / 삭제 / 남은 개수 / 새로고침해도 남기기
 const STORAGE_KEY = "todo-nini-items";
 
 const input = document.getElementById("item");
@@ -15,10 +15,10 @@ function today() {
   return now.getFullYear() + "-" + month + "-" + day;
 }
 
-// "2026-10-26" -> "10월 26일"
+// "2026-10-26" -> "10/26"
 function showDate(date) {
   const parts = date.split("-");
-  return Number(parts[1]) + "월 " + Number(parts[2]) + "일";
+  return Number(parts[1]) + "/" + Number(parts[2]);
 }
 
 dateInput.value = today();
@@ -30,6 +30,7 @@ function readItemsFromScreen() {
       text: li.textContent.replace("삭제", "").trim(),
       done: li.querySelector("input[type='checkbox']").checked,
       date: today(),
+      starred: false,
     };
   });
 }
@@ -56,18 +57,36 @@ function saveItems() {
 
 let items = loadItems();
 
-// items 배열을 화면에 그린다
+// items 배열을 화면에 그린다 (별표 한 할 일이 맨 위, 나머지는 더한 순서 그대로)
 function render() {
   list.textContent = "";
 
-  items.forEach(function (item, index) {
+  const starredFirst = items.filter(function (item) {
+    return item.starred;
+  }).concat(items.filter(function (item) {
+    return !item.starred;
+  }));
+
+  starredFirst.forEach(function (item) {
     const li = document.createElement("li");
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = item.done;
     checkbox.addEventListener("change", function () {
-      items[index].done = checkbox.checked;
+      item.done = checkbox.checked;
+      saveItems();
+      render();
+    });
+
+    const starButton = document.createElement("button");
+    starButton.type = "button";
+    starButton.className = item.starred ? "star on" : "star";
+    starButton.textContent = "★";
+    starButton.setAttribute("aria-label", "별표");
+    starButton.setAttribute("aria-pressed", item.starred ? "true" : "false");
+    starButton.addEventListener("click", function () {
+      item.starred = !item.starred;
       saveItems();
       render();
     });
@@ -76,7 +95,7 @@ function render() {
     deleteButton.type = "button";
     deleteButton.textContent = "삭제";
     deleteButton.addEventListener("click", function () {
-      items.splice(index, 1);
+      items.splice(items.indexOf(item), 1);
       saveItems();
       render();
     });
@@ -90,7 +109,7 @@ function render() {
       li.append(dateLabel);
     }
 
-    li.append(deleteButton);
+    li.append(starButton, deleteButton);
     list.appendChild(li);
   });
 
@@ -104,7 +123,7 @@ addButton.addEventListener("click", function () {
   if (text === "") {
     return; // 빈 칸은 추가하지 않는다
   }
-  items.push({ text: text, done: false, date: dateInput.value || today() });
+  items.push({ text: text, done: false, starred: false, date: dateInput.value || today() });
   input.value = "";
   dateInput.value = today();
   saveItems();

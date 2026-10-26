@@ -15,6 +15,7 @@
   --neon: #19e6d0;
   --neon-dim: rgba(25, 230, 208, 0.14);
   --danger: #ff6b7a;
+  --star: #ffd84a;
   color-scheme: dark;
   --radius: 14px;
   --gap: 12px;
@@ -133,6 +134,11 @@ button {
     background: rgba(255, 107, 122, 0.15);
     box-shadow: 0 0 12px rgba(255, 107, 122, 0.3);
   }
+
+  li .star:hover {
+    background: rgba(255, 216, 74, 0.2);
+    box-shadow: 0 0 12px rgba(255, 216, 74, 0.35);
+  }
 }
 
 /* 할 일 목록 */
@@ -146,7 +152,7 @@ ul {
 li {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   padding: 8px 12px;
   background: var(--bg);
   border: 1px solid var(--line);
@@ -171,10 +177,32 @@ li button {
   flex: none;
   margin-left: auto;
   min-height: 52px;
-  padding: 0 18px;
+  padding: 0 14px;
   font-size: 18px;
   border-color: var(--danger);
   color: var(--danger);
+}
+
+/* 별표 버튼: 평소엔 회색 테두리, 누르면 노란색 */
+li .star {
+  min-width: 48px;
+  padding: 0;
+  margin-left: auto;
+  font-size: 24px;
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+li .star + button {
+  margin-left: 0;
+}
+
+li .star.on {
+  border-color: var(--star);
+  color: var(--star);
+  background: rgba(255, 216, 74, 0.14);
+  text-shadow: 0 0 8px rgba(255, 216, 74, 0.7);
+  box-shadow: 0 0 12px rgba(255, 216, 74, 0.25);
 }
 
 /* 남은 개수: 숫자는 고정폭 글꼴 (한글은 Jua로 이어짐) */
