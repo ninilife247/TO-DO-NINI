@@ -123,16 +123,29 @@ function render() {
   }).length;
 }
 
-addButton.addEventListener("click", function () {
+// 입력칸의 글을 할 일로 더한다
+function addItem() {
   const text = input.value.trim();
   if (text === "") {
-    return; // 빈 칸은 추가하지 않는다
+    input.value = "";
+    input.focus();
+    return; // 빈 칸이나 띄어쓰기만 있으면 추가하지 않는다
   }
   items.push({ text: text, done: false, starred: false, date: dateInput.value || today() });
   input.value = "";
   dateInput.value = today();
   saveItems();
   render();
+}
+
+addButton.addEventListener("click", addItem);
+
+// 입력칸에서 Enter를 눌러도 추가한다 (한글을 쓰는 중에 누른 Enter는 건너뛴다)
+input.addEventListener("keydown", function (event) {
+  if (event.key === "Enter" && !event.isComposing) {
+    event.preventDefault();
+    addItem();
+  }
 });
 
 render();
