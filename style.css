@@ -1,12 +1,12 @@
 :root {
-  --bg: #f1efe9;
+  --bg: #edf5ee;
   --tile: #ffffff;
-  --text: #22201c;
-  --muted: #7a756b;
-  --accent: #3b6df0;
-  --accent-soft: #e6ecfe;
+  --text: #1c2b20;
+  --muted: #5f7565;
+  --accent: #238a4a;
+  --accent-soft: #d8f0df;
   --danger: #d64545;
-  --line: #e4e0d6;
+  --line: #cfe2d4;
   --radius: 20px;
   --gap: 12px;
 }
@@ -50,6 +50,12 @@ h1 {
   line-height: 1.2;
   background: var(--accent);
   color: #fff;
+  /* 겹쳐 쌓은 그림자로 글씨가 튀어나와 보이게 */
+  text-shadow:
+    1px 1px 0 #1b6e3a,
+    2px 2px 0 #175f33,
+    3px 3px 0 #13502b,
+    4px 6px 8px rgba(0, 0, 0, 0.35);
 }
 
 /* 입력칸 + 추가 버튼 */
@@ -89,6 +95,8 @@ button {
 #add-button {
   background: var(--accent);
   color: #fff;
+  text-shadow: 1px 1px 0 #175f33, 2px 2px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 0 #175f33;
 }
 
 /* 할 일 목록 */
@@ -143,6 +151,7 @@ li button {
 #remaining-count {
   background: var(--accent-soft);
   font-weight: 600;
+  text-shadow: 1px 1px 0 #fff, 2px 2px 2px rgba(35, 138, 74, 0.35);
 }
 
 /* 아주 좁은 휴대폰에서는 한 줄에 한 칸씩 */
