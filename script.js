@@ -1,4 +1,4 @@
-// 할 일 목록: 추가 / 고치기 / 날짜 / 별표 / 체크 / 삭제 / 완료 항목 지우기 / 필터 / 남은 개수
+// 오늘 날짜·요일·날씨 / 할 일 목록: 추가 / 고치기 / 날짜 / 별표 / 체크 / 삭제 / 완료 항목 지우기 / 필터 / 남은 개수
 // 할 일(글, 완료 여부, 날짜, 별표)은 Supabase의 todos 표에 저장한다. 새로고침해도 표에서 다시 읽어 온다.
 // 아래 두 값은 공개해도 되는 주소와 공개 키다 (비밀 키는 절대 여기에 넣지 않는다).
 const SUPABASE_URL = "https://pnmivezqsljfptgxqgqi.supabase.co";
@@ -14,6 +14,7 @@ const count = document.getElementById("count");
 const dateInput = document.getElementById("date");
 const filterButtons = document.querySelectorAll("#filters button");
 const clearDoneButton = document.getElementById("clear-done");
+const todayInfo = document.getElementById("today-info");
 
 // ---------- Supabase 주고받기 ----------
 
@@ -66,6 +67,94 @@ function showDate(date) {
 }
 
 dateInput.value = today();
+
+// ---------- 오늘 날짜·요일·날씨 ----------
+
+// 날씨는 Open-Meteo(열쇠 없이 쓰는 무료 날씨 서비스)에서 현재 날씨를 받아 온다.
+// 위치를 허락하면 지금 있는 곳, 허락하지 않으면 서울 기준으로 보여 준다.
+const SEOUL = { latitude: 37.5665, longitude: 126.978, label: "서울" };
+
+let weatherText = "";
+
+// Open-Meteo의 날씨 번호(WMO 코드)를 글씨로 바꾼다
+function weatherName(code) {
+  if (code === 0) return "☀️ 맑음";
+  if (code === 1) return "🌤️ 대체로 맑음";
+  if (code === 2) return "⛅ 구름 조금";
+  if (code === 3) return "☁️ 흐림";
+  if (code === 45 || code === 48) return "🌫️ 안개";
+  if (code >= 51 && code <= 57) return "🌦️ 이슬비";
+  if (code >= 61 && code <= 67) return "🌧️ 비";
+  if (code >= 71 && code <= 77) return "❄️ 눈";
+  if (code >= 80 && code <= 82) return "🌦️ 소나기";
+  if (code === 85 || code === 86) return "❄️ 눈";
+  if (code >= 95) return "⛈️ 뇌우";
+  return "";
+}
+
+// "10월 26일 월요일 · ☀️ 맑음 18° (서울)"
+function renderToday() {
+  const dayText = new Date().toLocaleDateString("ko-KR", {
+    month: "long",
+    day: "numeric",
+    weekday: "long",
+  });
+  todayInfo.textContent = weatherText ? dayText + " · " + weatherText : dayText;
+}
+
+async function loadWeather(place) {
+  try {
+    const response = await fetch(
+      "https://api.open-meteo.com/v1/forecast?latitude=" + place.latitude +
+        "&longitude=" + place.longitude + "&current=temperature_2m,weather_code&timezone=auto"
+    );
+    if (!response.ok) {
+      throw new Error("날씨 오류 " + response.status);
+    }
+    const data = await response.json();
+    const name = weatherName(data.current.weather_code);
+    const where = place.label ? " (" + place.label + ")" : "";
+    weatherText = name + " " + Math.round(data.current.temperature_2m) + "°" + where;
+  } catch (error) {
+    console.warn(error); // 날씨를 못 받아도 날짜와 요일은 그대로 보여 준다
+    weatherText = "";
+  }
+  renderToday();
+}
+
+function startWeather() {
+  if (!navigator.geolocation) {
+    loadWeather(SEOUL);
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      loadWeather({ latitude: position.coords.latitude, longitude: position.coords.longitude, label: "" });
+    },
+    function () {
+      loadWeather(SEOUL);
+    },
+    { timeout: 5000 }
+  );
+}
+
+renderToday();
+startWeather();
+
+// 날짜가 바뀌면(자정이 지나면) 화면을 새로 그린다
+let shownDay = today();
+setInterval(function () {
+  if (today() === shownDay) {
+    return;
+  }
+  if (dateInput.value === shownDay) {
+    dateInput.value = today();
+  }
+  shownDay = today();
+  renderToday();
+  render();
+  startWeather();
+}, 60000);
 
 // 표에서 읽은 한 줄을 화면용 할 일로 만든다
 // 날짜(due_date)가 비어 있는 줄은 만든 날(created_at)을 날짜로 쓴다
