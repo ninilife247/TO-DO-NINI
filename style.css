@@ -1,206 +1,54 @@
-@font-face {
-  font-family: "Jua";
-  src: url("fonts/Jua-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-:root {
-  --bg: #07090b;
-  --card: #0d1114;
-  --line: #1e2a2f;
-  --text: #d9e4e7;
-  --muted: #6f858c;
-  --neon: #19e6d0;
-  --neon-dim: rgba(25, 230, 208, 0.14);
-  --danger: #ff6b7a;
-  --radius: 14px;
-  --gap: 12px;
-  --font: "Jua", ui-rounded, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", "Jua", monospace;
-}
-
-* {
-  box-sizing: border-box;
-}
-
+/* 명세 ② 예시: 청록과 흰색 · 제목은 크게 · 휴대폰에서 누르기 쉬운 버튼 · 줄 사이 넉넉하게 */
 body {
+  max-width: 480px;
   margin: 0 auto;
-  padding: 16px;
-  max-width: 640px;
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 17px;
-  line-height: 1.5;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--gap);
-  align-content: start;
+  padding: 24px 16px;
+  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background: #ffffff;
+  color: #1f2937;
+  line-height: 1.6;
 }
 
-/* 모든 칸은 얇은 선으로 나눈 어두운 카드 */
-h1,
-body > div,
-ul,
-#empty-message,
-#remaining-count {
-  margin: 0;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 20px;
-}
+h1 { font-size: 28px; color: #0f766e; }
 
-/* 제목: 크게, 청록 네온 빛 */
-h1 {
-  grid-column: 1 / -1;
-  font-size: 48px;
-  font-weight: 400;
-  line-height: 1.15;
-  color: var(--neon);
-  text-shadow:
-    0 0 8px rgba(25, 230, 208, 0.7),
-    0 0 24px rgba(25, 230, 208, 0.35);
-  border-color: rgba(25, 230, 208, 0.45);
-  box-shadow: 0 0 18px rgba(25, 230, 208, 0.12);
-}
-
-/* 입력칸 + 추가 버튼 */
-body > div {
-  grid-column: 1 / -1;
-  display: flex;
-  gap: 10px;
-}
-
-input[type="text"] {
-  flex: 1;
-  min-width: 0;
-  min-height: 60px;
-  padding: 0 16px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg);
-  color: var(--text);
-  font: inherit;
-  font-size: 18px;
-}
-
-input[type="text"]::placeholder {
-  color: var(--muted);
-}
-
-input[type="text"]:focus {
-  outline: none;
-  border-color: var(--neon);
-  box-shadow: 0 0 10px rgba(25, 230, 208, 0.35);
-}
-
-button {
-  min-height: 60px;
-  padding: 0 26px;
-  border: 1px solid var(--neon);
-  border-radius: 12px;
-  background: transparent;
-  color: var(--neon);
-  font: inherit;
-  font-size: 20px;
-  cursor: pointer;
-  transition: background-color 0.15s, box-shadow 0.15s;
-}
-
-#add-button {
-  background: var(--neon-dim);
-  text-shadow: 0 0 8px rgba(25, 230, 208, 0.6);
-  box-shadow: 0 0 12px rgba(25, 230, 208, 0.25);
-}
-
-/* 마우스를 올리면 색이 살짝 바뀜 (마우스가 있는 기기에서만) */
-@media (hover: hover) {
-  button:hover {
-    background: var(--neon-dim);
-    box-shadow: 0 0 12px rgba(25, 230, 208, 0.3);
-  }
-
-  #add-button:hover {
-    background: rgba(25, 230, 208, 0.28);
-    box-shadow: 0 0 18px rgba(25, 230, 208, 0.45);
-  }
-
-  li button:hover {
-    background: rgba(255, 107, 122, 0.15);
-    box-shadow: 0 0 12px rgba(255, 107, 122, 0.3);
-  }
-}
-
-/* 할 일 목록 */
-ul {
-  grid-column: 1 / -1;
-  list-style: none;
-  display: grid;
-  gap: 10px;
-}
-
-li {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 8px 12px;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-}
-
-li input[type="checkbox"] {
-  flex: none;
-  width: 30px;
-  height: 30px;
-  accent-color: var(--neon);
-}
-
-li span {
-  flex: 1;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-li button {
-  flex: none;
-  min-height: 52px;
-  padding: 0 18px;
-  font-size: 18px;
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
-/* 아래 두 작은 카드는 나란히 */
-#empty-message,
-#remaining-count {
-  display: flex;
-  align-items: center;
+#item {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  margin-bottom: 8px;
   font-size: 16px;
+  border: 1px solid #99c9c4;
+  border-radius: 8px;
 }
 
-#empty-message {
-  color: var(--muted);
+button { padding: 12px 20px; border-radius: 8px; }
+
+#add {
+  width: 100%;
+  font-size: 16px;
+  color: #ffffff;
+  background: #0f766e;
+  border: none;
 }
 
-/* 숫자는 고정폭 글꼴 (한글은 Jua로 이어짐) */
-#remaining-count {
-  font-family: var(--mono);
-  color: var(--neon);
+#list { list-style: none; padding: 0; }
+
+#list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-/* 아주 좁은 휴대폰에서는 한 줄에 한 칸씩 */
-@media (max-width: 360px) {
-  #empty-message,
-  #remaining-count {
-    grid-column: 1 / -1;
-  }
-
-  h1 {
-    font-size: 40px;
-  }
+#list li button {
+  margin-left: auto;
+  padding: 8px 12px;
+  color: #0f766e;
+  background: #ffffff;
+  border: 1px solid #0f766e;
 }
+
+#list input[type="checkbox"] { width: 22px; height: 22px; }
+
+li.done { text-decoration: line-through; color: #9ca3af; }
