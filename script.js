@@ -1,5 +1,12 @@
-// 할 일 목록: 추가 / 고치기 / 날짜 / 별표 / 체크 / 삭제 / 완료 항목 지우기 / 필터 / 남은 개수 / 새로고침해도 남기기
-const STORAGE_KEY = "todo-nini-items";
+// 할 일 목록: 추가 / 고치기 / 날짜 / 별표 / 체크 / 삭제 / 완료 항목 지우기 / 필터 / 남은 개수
+// 할 일(글, 완료 여부)은 Supabase의 todos 표에 저장한다. 새로고침해도 표에서 다시 읽어 온다.
+// 아래 두 값은 공개해도 되는 주소와 공개 키다 (비밀 키는 절대 여기에 넣지 않는다).
+const SUPABASE_URL = "https://pnmivezqsljfptgxqgqi.supabase.co";
+const SUPABASE_KEY = "sb_publishable_xx3jUDsEDjocSgjYyPuuIg_J1P59QhD";
+
+// todos 표에는 id, text, done, created_at 칸만 있어서
+// 날짜와 별표는 이 브라우저에만 기억해 둔다 (할 일의 id별로)
+const EXTRAS_KEY = "todo-nini-extras";
 
 const input = document.getElementById("item");
 const addButton = document.getElementById("add");
@@ -9,12 +16,48 @@ const dateInput = document.getElementById("date");
 const filterButtons = document.querySelectorAll("#filters button");
 const clearDoneButton = document.getElementById("clear-done");
 
+// ---------- Supabase 주고받기 ----------
+
+// 표에 요청을 보내고 결과를 돌려준다. 잘못되면 오류를 던진다.
+async function request(path, options) {
+  const response = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
+    method: options.method,
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  if (!response.ok) {
+    throw new Error("Supabase 오류 " + response.status + ": " + (await response.text()));
+  }
+  const text = await response.text();
+  return text ? JSON.parse(text) : [];
+}
+
+function idFilter(item) {
+  return "todos?id=eq." + encodeURIComponent(item.id);
+}
+
+// 저장이나 불러오기가 안 됐을 때 알려 준다
+function showError(error) {
+  console.error(error);
+  alert("저장소(Supabase)와 주고받지 못했어요. 인터넷과 Supabase 설정을 확인해 주세요.");
+}
+
+// ---------- 날짜 ----------
+
 // 오늘 날짜를 "2026-10-26" 모양으로 돌려준다 (이 기기의 시간 기준)
+function dateText(date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return date.getFullYear() + "-" + month + "-" + day;
+}
+
 function today() {
-  const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return now.getFullYear() + "-" + month + "-" + day;
+  return dateText(new Date());
 }
 
 // "2026-10-26" -> "10/26"
@@ -25,39 +68,43 @@ function showDate(date) {
 
 dateInput.value = today();
 
-// 화면에 처음 적혀 있던 할 일을 읽어 둔다 (저장된 게 없을 때 처음 목록으로 쓴다)
-function readItemsFromScreen() {
-  return Array.from(list.children).map(function (li) {
-    return {
-      text: li.textContent.replace("삭제", "").trim(),
-      done: li.querySelector("input[type='checkbox']").checked,
-      date: today(),
-      starred: false,
-    };
-  });
-}
+// ---------- 날짜·별표 (이 브라우저에만 저장) ----------
 
-function loadItems() {
+function loadExtras() {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved !== null) {
-      return JSON.parse(saved);
-    }
+    return JSON.parse(localStorage.getItem(EXTRAS_KEY)) || {};
   } catch (e) {
-    // 저장소를 못 읽으면 화면에 있던 목록으로 시작한다
+    return {};
   }
-  return readItemsFromScreen();
 }
 
-function saveItems() {
+function saveExtras() {
+  const extras = {};
+  items.forEach(function (item) {
+    extras[item.id] = { date: item.date, starred: item.starred };
+  });
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    localStorage.setItem(EXTRAS_KEY, JSON.stringify(extras));
   } catch (e) {
     // 저장이 안 되어도 화면은 계속 동작한다
   }
 }
 
-let items = loadItems();
+// 표에서 읽은 한 줄에 날짜와 별표를 붙여 화면용 할 일로 만든다
+function toItem(row, extras) {
+  const extra = extras[row.id] || {};
+  return {
+    id: row.id,
+    text: row.text,
+    done: row.done,
+    date: extra.date || (row.created_at ? dateText(new Date(row.created_at)) : today()),
+    starred: extra.starred === true,
+  };
+}
+
+// ---------- 목록 ----------
+
+let items = [];
 
 // 어떤 할 일을 보여 줄지: all(전체) / remaining(남은 것) / done(완료) / starred(별표만)
 let filter = "all";
@@ -85,15 +132,19 @@ function startEditing(item, li, textLabel) {
   editInput.setAttribute("aria-label", "할 일 고치기");
 
   let finished = false;
-  function finish(save) {
+  async function finish(save) {
     if (finished) {
       return;
     }
     finished = true;
     const newText = editInput.value.trim();
-    if (save && newText !== "") {
-      item.text = newText;
-      saveItems();
+    if (save && newText !== "" && newText !== item.text) {
+      try {
+        await request(idFilter(item), { method: "PATCH", body: { text: newText } });
+        item.text = newText;
+      } catch (error) {
+        showError(error);
+      }
     }
     render();
   }
@@ -139,9 +190,13 @@ function render() {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = item.done;
-    checkbox.addEventListener("change", function () {
-      item.done = checkbox.checked;
-      saveItems();
+    checkbox.addEventListener("change", async function () {
+      try {
+        await request(idFilter(item), { method: "PATCH", body: { done: checkbox.checked } });
+        item.done = checkbox.checked;
+      } catch (error) {
+        showError(error);
+      }
       render();
     });
 
@@ -153,16 +208,21 @@ function render() {
     starButton.setAttribute("aria-pressed", item.starred ? "true" : "false");
     starButton.addEventListener("click", function () {
       item.starred = !item.starred;
-      saveItems();
+      saveExtras();
       render();
     });
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.textContent = "삭제";
-    deleteButton.addEventListener("click", function () {
-      items.splice(items.indexOf(item), 1);
-      saveItems();
+    deleteButton.addEventListener("click", async function () {
+      try {
+        await request(idFilter(item), { method: "DELETE" });
+        items.splice(items.indexOf(item), 1);
+        saveExtras();
+      } catch (error) {
+        showError(error);
+      }
       render();
     });
 
@@ -203,11 +263,16 @@ function render() {
 }
 
 // 체크한 할 일을 모두 지운다 (어떤 필터를 보고 있어도 완료한 것 전부)
-clearDoneButton.addEventListener("click", function () {
-  items = items.filter(function (item) {
-    return !item.done;
-  });
-  saveItems();
+clearDoneButton.addEventListener("click", async function () {
+  try {
+    await request("todos?done=eq.true", { method: "DELETE" });
+    items = items.filter(function (item) {
+      return !item.done;
+    });
+    saveExtras();
+  } catch (error) {
+    showError(error);
+  }
   render();
 });
 
@@ -219,17 +284,25 @@ filterButtons.forEach(function (button) {
 });
 
 // 입력칸의 글을 할 일로 더한다
-function addItem() {
+async function addItem() {
   const text = input.value.trim();
   if (text === "") {
     input.value = "";
     input.focus();
     return; // 빈 칸이나 띄어쓰기만 있으면 추가하지 않는다
   }
-  items.push({ text: text, done: false, starred: false, date: dateInput.value || today() });
-  input.value = "";
-  dateInput.value = today();
-  saveItems();
+  const date = dateInput.value || today();
+  try {
+    const rows = await request("todos", { method: "POST", body: { text: text, done: false } });
+    const item = toItem(rows[0], {});
+    item.date = date;
+    items.push(item);
+    saveExtras();
+    input.value = "";
+    dateInput.value = today();
+  } catch (error) {
+    showError(error);
+  }
   render();
 }
 
@@ -243,4 +316,22 @@ input.addEventListener("keydown", function (event) {
   }
 });
 
+// 처음 열 때: 표에서 할 일을 읽어 와서 보여 준다
+async function loadItems() {
+  try {
+    const rows = await request("todos?select=id,text,done,created_at&order=created_at.asc", {
+      method: "GET",
+    });
+    const extras = loadExtras();
+    items = rows.map(function (row) {
+      return toItem(row, extras);
+    });
+    saveExtras();
+  } catch (error) {
+    showError(error);
+  }
+  render();
+}
+
 render();
+loadItems();
