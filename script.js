@@ -69,6 +69,7 @@ function render() {
 
   starredFirst.forEach(function (item) {
     const li = document.createElement("li");
+    li.className = item.done ? "done" : "";
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -100,7 +101,11 @@ function render() {
       render();
     });
 
-    li.append(checkbox, " " + item.text + " ");
+    const textLabel = document.createElement("span");
+    textLabel.className = "text";
+    textLabel.textContent = item.text;
+
+    li.append(checkbox, textLabel);
 
     if (item.date) {
       const dateLabel = document.createElement("span");

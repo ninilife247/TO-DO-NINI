@@ -183,6 +183,14 @@ li button {
   color: var(--danger);
 }
 
+/* 완료한 할 일: 취소선과 흐린 글씨 */
+li.done .text,
+li.done .date {
+  text-decoration: line-through;
+  color: var(--muted);
+  opacity: 0.55;
+}
+
 /* 별표 버튼: 평소엔 회색 테두리, 누르면 노란색 */
 li .star {
   min-width: 48px;
