@@ -1,4 +1,4 @@
-// 할 일 목록: 추가 / 날짜 / 별표 / 체크 / 삭제 / 완료 항목 지우기 / 필터 / 남은 개수 / 새로고침해도 남기기
+// 할 일 목록: 추가 / 고치기 / 날짜 / 별표 / 체크 / 삭제 / 완료 항목 지우기 / 필터 / 남은 개수 / 새로고침해도 남기기
 const STORAGE_KEY = "todo-nini-items";
 
 const input = document.getElementById("item");
@@ -75,6 +75,49 @@ function matchesFilter(item) {
   return true;
 }
 
+// 글을 두 번 누르면 그 자리에 입력칸이 나와서 고칠 수 있다
+// Enter나 다른 곳을 누르면 저장, Esc는 취소, 비우면 원래 글 그대로
+function startEditing(item, li, textLabel) {
+  const editInput = document.createElement("input");
+  editInput.type = "text";
+  editInput.className = "edit";
+  editInput.value = item.text;
+  editInput.setAttribute("aria-label", "할 일 고치기");
+
+  let finished = false;
+  function finish(save) {
+    if (finished) {
+      return;
+    }
+    finished = true;
+    const newText = editInput.value.trim();
+    if (save && newText !== "") {
+      item.text = newText;
+      saveItems();
+    }
+    render();
+  }
+
+  editInput.addEventListener("keydown", function (event) {
+    if (event.isComposing) {
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      finish(true);
+    } else if (event.key === "Escape") {
+      finish(false);
+    }
+  });
+  editInput.addEventListener("blur", function () {
+    finish(true);
+  });
+
+  li.replaceChild(editInput, textLabel);
+  editInput.focus();
+  editInput.select();
+}
+
 // items 배열을 화면에 그린다 (별표 한 할 일이 맨 위, 나머지는 더한 순서 그대로)
 function render() {
   list.textContent = "";
@@ -126,6 +169,10 @@ function render() {
     const textLabel = document.createElement("span");
     textLabel.className = "text";
     textLabel.textContent = item.text;
+    textLabel.title = "두 번 누르면 고칠 수 있어요";
+    textLabel.addEventListener("dblclick", function () {
+      startEditing(item, li, textLabel);
+    });
 
     li.append(checkbox, textLabel);
 
