@@ -14,7 +14,7 @@
   --muted: #7b8294;
   --accent: #5b34e0;
   --accent-dim: rgba(91, 52, 224, 0.1);
-  --danger: #e5484d;
+  --alert: #7c3aed;
   --star: #f5a800;
   color-scheme: light;
   --radius: 14px;
@@ -129,15 +129,15 @@ button {
   }
 
   li button:hover {
-    background: rgba(255, 107, 122, 0.15);
+    background: rgba(124, 58, 237, 0.1);
   }
 
   #clear-done:enabled:hover {
-    background: rgba(255, 107, 122, 0.15);
+    background: rgba(124, 58, 237, 0.1);
   }
 
   li button.delete:hover {
-    background: rgba(229, 72, 77, 0.1);
+    background: rgba(124, 58, 237, 0.1);
   }
 
   li .star:hover {
@@ -206,8 +206,8 @@ li button {
   min-height: 52px;
   padding: 0 14px;
   font-size: 18px;
-  border-color: var(--danger);
-  color: var(--danger);
+  border-color: var(--alert);
+  color: var(--alert);
 }
 
 /* 고치는 중인 글: 입력칸으로 바뀜 */
@@ -231,8 +231,8 @@ li.done .date {
 /* 완료 항목 한 번에 지우기 */
 #clear-done {
   grid-column: 1 / -1;
-  border-color: var(--danger);
-  color: var(--danger);
+  border-color: var(--alert);
+  color: var(--alert);
 }
 
 #clear-done:disabled {
@@ -245,12 +245,12 @@ li.done .date {
 
 /* 마감이 지난 할 일(체크 안 했고 날짜가 오늘보다 앞): 빨간색 */
 li.overdue {
-  border-color: rgba(255, 107, 122, 0.6);
+  border-color: rgba(124, 58, 237, 0.45);
 }
 
 li.overdue .text,
 li.overdue .date {
-  color: var(--danger);
+  color: var(--alert);
 }
 
 /* 삭제 버튼: 글씨 대신 그림 */
