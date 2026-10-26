@@ -7,17 +7,18 @@
 }
 
 :root {
-  --bg: #edf5ee;
-  --tile: #ffffff;
-  --text: #1c2b20;
-  --muted: #5f7565;
-  --accent: #238a4a;
-  --accent-soft: #d8f0df;
-  --danger: #d64545;
-  --line: #cfe2d4;
-  --radius: 20px;
+  --bg: #07090b;
+  --card: #0d1114;
+  --line: #1e2a2f;
+  --text: #d9e4e7;
+  --muted: #6f858c;
+  --neon: #19e6d0;
+  --neon-dim: rgba(25, 230, 208, 0.14);
+  --danger: #ff6b7a;
+  --radius: 14px;
   --gap: 12px;
   --font: "Jua", ui-rounded, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", "Jua", monospace;
 }
 
 * {
@@ -32,7 +33,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.5;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -40,81 +41,79 @@ body {
   align-content: start;
 }
 
-/* 모든 칸을 같은 모양의 타일로 */
+/* 모든 칸은 얇은 선으로 나눈 어두운 카드 */
 h1,
 body > div,
 ul,
 #empty-message,
 #remaining-count {
   margin: 0;
-  background: var(--tile);
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 20px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
+/* 제목: 크게, 청록 네온 빛 */
 h1 {
   grid-column: 1 / -1;
-  font-size: 36px;
-  line-height: 1.2;
-  background: var(--accent);
-  color: #fff;
-  /* 풍선 글씨: 통통한 글자 + 둥근 굵은 테두리 + 아래쪽 그림자 */
-  font-family: var(--font);
+  font-size: 48px;
   font-weight: 400;
-  letter-spacing: 0.06em;
-  -webkit-text-stroke: 8px #0f4d27;
-  paint-order: stroke fill;
-  stroke-linejoin: round;
+  line-height: 1.15;
+  color: var(--neon);
   text-shadow:
-    0 4px 0 #0f4d27,
-    0 10px 10px rgba(0, 0, 0, 0.35);
+    0 0 8px rgba(25, 230, 208, 0.7),
+    0 0 24px rgba(25, 230, 208, 0.35);
+  border-color: rgba(25, 230, 208, 0.45);
+  box-shadow: 0 0 18px rgba(25, 230, 208, 0.12);
 }
 
 /* 입력칸 + 추가 버튼 */
 body > div {
   grid-column: 1 / -1;
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 input[type="text"] {
   flex: 1;
   min-width: 0;
-  min-height: 48px;
-  padding: 0 14px;
-  border: 2px solid var(--line);
-  border-radius: 14px;
+  min-height: 60px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
   background: var(--bg);
   color: var(--text);
   font: inherit;
+  font-size: 18px;
+}
+
+input[type="text"]::placeholder {
+  color: var(--muted);
 }
 
 input[type="text"]:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--neon);
+  box-shadow: 0 0 10px rgba(25, 230, 208, 0.35);
 }
 
 button {
-  min-height: 48px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 14px;
+  min-height: 60px;
+  padding: 0 26px;
+  border: 1px solid var(--neon);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--neon);
   font: inherit;
-  font-weight: 400;
+  font-size: 20px;
   cursor: pointer;
 }
 
 #add-button {
-  background: var(--accent);
-  color: #fff;
-  font-family: var(--font);
-  font-weight: 400;
-  -webkit-text-stroke: 3px #0f4d27;
-  paint-order: stroke fill;
-  stroke-linejoin: round;
-  text-shadow: 0 2px 0 #0f4d27;
-  box-shadow: 0 3px 0 #175f33;
+  background: var(--neon-dim);
+  text-shadow: 0 0 8px rgba(25, 230, 208, 0.6);
+  box-shadow: 0 0 12px rgba(25, 230, 208, 0.25);
 }
 
 /* 할 일 목록 */
@@ -122,23 +121,24 @@ ul {
   grid-column: 1 / -1;
   list-style: none;
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
 li {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   padding: 8px 12px;
   background: var(--bg);
-  border-radius: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
 }
 
 li input[type="checkbox"] {
   flex: none;
-  width: 24px;
-  height: 24px;
-  accent-color: var(--accent);
+  width: 30px;
+  height: 30px;
+  accent-color: var(--neon);
 }
 
 li span {
@@ -149,53 +149,29 @@ li span {
 
 li button {
   flex: none;
-  min-height: 44px;
-  background: transparent;
+  min-height: 52px;
+  padding: 0 18px;
+  font-size: 18px;
+  border-color: var(--danger);
   color: var(--danger);
 }
 
-/* 아래 두 작은 타일은 나란히 */
+/* 아래 두 작은 카드는 나란히 */
 #empty-message,
 #remaining-count {
   display: flex;
   align-items: center;
-  font-size: 15px;
+  font-size: 16px;
 }
 
 #empty-message {
   color: var(--muted);
 }
 
+/* 숫자는 고정폭 글꼴 (한글은 Jua로 이어짐) */
 #remaining-count {
-  background: var(--accent-soft);
-  font-weight: 400;
-  font-family: var(--font);
-  color: #fff;
-  -webkit-text-stroke: 3px #238a4a;
-  paint-order: stroke fill;
-  stroke-linejoin: round;
-  text-shadow: 0 2px 0 #238a4a;
-  letter-spacing: 0.04em;
-}
-
-/* 풍선 글씨 윤기: 같은 글자를 위에 한 겹 더 얹어 윗부분은 밝게, 아랫부분은 조금 어둡게 */
-.balloon {
-  position: relative;
-  display: inline-block;
-}
-
-.balloon::after {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  top: 0;
-  white-space: nowrap;
-  background: linear-gradient(to bottom, #ffffff 0%, #ffffff 45%, #c9f0d5 50%, #8fd9a8 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0;
-  text-shadow: none;
+  font-family: var(--mono);
+  color: var(--neon);
 }
 
 /* 아주 좁은 휴대폰에서는 한 줄에 한 칸씩 */
@@ -203,5 +179,9 @@ li button {
   #empty-message,
   #remaining-count {
     grid-column: 1 / -1;
+  }
+
+  h1 {
+    font-size: 40px;
   }
 }
